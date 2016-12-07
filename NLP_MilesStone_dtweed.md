@@ -57,14 +57,26 @@ system("wc final/en_US/*.txt > wc_count") # save output to a file
 wc <- read.table("wc_count")              # and read it as a data.frame
 ```
 
-Table: Summary of the 'final/en_US/' data set
+```r
+names(wc) <- c("Nline", "Nword","Nchar","file")
+row.names(wc) <- wc$file
+df_wc <- data.frame(
+    "Number of lines"=wc$Nline,
+    "Number of words"=wc$Nword,
+    "Number of characters"=wc$Nchar,
+    check.names=FALSE)
+#kable(
+#,caption="Summary of the 'final/en_US/' data set")
+df_wc
+```
 
- Number of lines   Number of words   Number of characters
-----------------  ----------------  ---------------------
-          899288          37334690              210160014
-         1010242          34372720              205811889
-         2360148          30374206              167105338
-         4269678         102081616              583077241
+```
+##   Number of lines Number of words Number of characters
+## 1          899288        37334690            210160014
+## 2         1010242        34372720            205811889
+## 3         2360148        30374206            167105338
+## 4         4269678       102081616            583077241
+```
 
 We create 4 sub-samples of the `US_en` data sets in separate directories:
 
@@ -219,34 +231,47 @@ tf_df <- convert_tdm_to_df(tdm_exp)
 
 While looking at the first 10 items of the data frame, we spot the expected most common words in the English language that could be interpreted as stop-words. As we look at the 3 least common words from each documents, not all the terms we find are misspelled. Frequency, on its own, may not be able to distinguish misspelled words from genuine ones. 
 
-Table: Most frequent words in the 0.1 % sample.
+```r
+#kable(
+#,caption="Most frequent words in the 0.1 % sample.")
+head(tf_df,10)
+```
 
-           blogs        news     twitter        mean
-----  ----------  ----------  ----------  ----------
-the    0.0490582   0.0562585   0.0312239   0.0455136
-to     0.0277662   0.0262198   0.0257864   0.0265908
-a      0.0257569   0.0257923   0.0197818   0.0237770
-and    0.0280173   0.0251653   0.0141442   0.0224423
-of     0.0230780   0.0225148   0.0127097   0.0194342
-i      0.0222408   0.0055290   0.0251193   0.0176297
-in     0.0154877   0.0193228   0.0124429   0.0157511
-it     0.0134784   0.0084359   0.0126097   0.0115080
-you    0.0087345   0.0043890   0.0212830   0.0114688
-for    0.0101577   0.0106874   0.0129099   0.0112517
+```
+##           blogs        news    twitter       mean
+## the 0.049058183 0.056258550 0.03122394 0.04551356
+## to  0.027766150 0.026219790 0.02578644 0.02659079
+## a   0.025756942 0.025792294 0.01978183 0.02377702
+## and 0.028017302 0.025165299 0.01414418 0.02244226
+## of  0.023077996 0.022514820 0.01270974 0.01943419
+## i   0.022240826 0.005528956 0.02511926 0.01762968
+## in  0.015487652 0.019322845 0.01244287 0.01575112
+## it  0.013478443 0.008435933 0.01260967 0.01150801
+## you 0.008734477 0.004388965 0.02128298 0.01146881
+## for 0.010157667 0.010687415 0.01290990 0.01125166
+```
 
-Table: Least frequent words in the 0.1 % sample.
+```r
+tails <- tail(tf_df[tf_df$blogs>0.,],3)
+tails <- rbind(tails,tail(tf_df[tf_df$news>0.,],3))
+tails <- rbind(tails,tail(tf_df[tf_df$twitter>0.,],3))
+#kable(
+#,caption="Least frequent words in the 0.1 % sample.")
+tails
+```
 
-               blogs       news    twitter       mean
----------  ---------  ---------  ---------  ---------
-zinzanni    2.79e-05   0.00e+00   0.00e+00   9.30e-06
-ziploc      2.79e-05   0.00e+00   0.00e+00   9.30e-06
-zombies     2.79e-05   0.00e+00   0.00e+00   9.30e-06
-zpass       0.00e+00   2.85e-05   0.00e+00   9.50e-06
-zumwalt     0.00e+00   2.85e-05   0.00e+00   9.50e-06
-zyvox       0.00e+00   2.85e-05   0.00e+00   9.50e-06
-zhangke     0.00e+00   0.00e+00   3.34e-05   1.11e-05
-zit         0.00e+00   0.00e+00   3.34e-05   1.11e-05
-zona        0.00e+00   0.00e+00   3.34e-05   1.11e-05
+```
+##                 blogs         news      twitter         mean
+## zinzanni 2.790568e-05 0.000000e+00 0.000000e+00 9.301893e-06
+## ziploc   2.790568e-05 0.000000e+00 0.000000e+00 9.301893e-06
+## zombies  2.790568e-05 0.000000e+00 0.000000e+00 9.301893e-06
+## zpass    0.000000e+00 2.849977e-05 0.000000e+00 9.499924e-06
+## zumwalt  0.000000e+00 2.849977e-05 0.000000e+00 9.499924e-06
+## zyvox    0.000000e+00 2.849977e-05 0.000000e+00 9.499924e-06
+## zhangke  0.000000e+00 0.000000e+00 3.335891e-05 1.111964e-05
+## zit      0.000000e+00 0.000000e+00 3.335891e-05 1.111964e-05
+## zona     0.000000e+00 0.000000e+00 3.335891e-05 1.111964e-05
+```
 
 Ideally, we wish to use term frequency to select words for the prediction model both as prior and as prediction. Profanity is likely to be among frequent terms. 
 An other issue that appears is the sparsity of terms among documents, additionally the same word may appear at different frequencies in different documents. 
@@ -303,18 +328,25 @@ nw_1 <- sample_dict_lengths("sample_1",perc=seq(0.,100)) #10% of the data
 
 ![Number of words needed as a function of the percentile of text content to be explored. Each document is color coded as indicated in the legend, the combinaison of all 3 documents being in gray. The horizontal dashed lines indicate the number of words needed to explore 50 % of the text and the long dashed ones for 90%. The corresponding values are indicated in the corresponding table.](NLP_MilesStone_dtweed_files/figure-html/fig3-1.png)
 
-Table: Number of words required to sample the 50 or 90 % of the various documents in the various sub samples representing 0.01 to 10 % of the complete original data-set.
+```r
+# print list_length
+#kable(
+#,caption="Number of words required to sample the 50 or 90 % of the various documents 
+# in the various sub samples representing 0.01 to 10 % of the complete original data-set.")
+t(list_length)
+```
 
-                blogs   news   twitter   total
--------------  ------  -----  --------  ------
-50% of 0.01%       89    128        94     118
-50% of 0.1%       104    175       116     132
-50% of 1%         105    179       113     131
-50% of 10%        105    176       114     134
-90% of 0.01%     1052   1630      1148    2974
-90% of 0.1%      7039   7691      5879    6281
-90% of 1%        6394   6678      4692    6704
-90% of 10%       6619   7434      4524    7142
+```
+##              blogs news twitter total
+## 50% of 0.01%    89  128      94   118
+## 50% of 0.1%    104  175     116   132
+## 50% of 1%      105  179     113   131
+## 50% of 10%     105  176     114   134
+## 90% of 0.01%  1052 1630    1148  2974
+## 90% of 0.1%   7039 7691    5879  6281
+## 90% of 1%     6394 6678    4692  6704
+## 90% of 10%    6619 7434    4524  7142
+```
 
 Both the figure and the table, suggest that the 0.01 % sample is insufficient. Saturation (all word used) was reached for all documents at 80 %, furthermore larger values are found for larger samples. With some variation, the number of words selected to obtain 50 % and 90 %, are quite similar for specific type of document for the various sample size. More words are needed for the news documents and the least for the twitter ones. This trend is not necessarily related to the actual size of the documents compared to one another as the variations are greater as we change document type compared to when we change the size of the sample.
 
@@ -339,42 +371,53 @@ dic1 <- build_dict("sample_1",perc=90,renorm=FALSE)
 We then compute the union and intersection of the dictionaries based on the 3 documents. To display the result, a matrix is built showing the number of elements in 2 dictionaries (see appendix 5.2.4 for detail) . In the diagonal we find the number of words in each dictionary. The other elements represent the percentile corresponding to the column. For example we read in the 0.1 % sample matrix that 45 % of the words in the blog dictionary are in the news dictionary and that 41 % of the news dictionary are in the blog dictionary.
 
 
-Table: Comparison matrix between documents for the 0.1 % sample
+```r
+#kable(
+#,caption="Comparison matrix between documents for the 0.1 % sample")
+get_comp_matrix(dic3)
+```
 
-           union   blogs   news   twitter   total   inter
---------  ------  ------  -----  --------  ------  ------
-union      14080     100    100       100     100     100
-blogs         50    7039     41        45      70     100
-news          55      45   7691        47      75     100
-twitter       42      38     36      5879      60     100
-total         45      63     61        65    6281     100
-inter         14      28     26        34      32    1958
+```
+##         union blogs news twitter total inter
+## union   14080   100  100     100   100   100
+## blogs      50  7039   41      45    70   100
+## news       55    45 7691      47    75   100
+## twitter    42    38   36    5879    60   100
+## total      45    63   61      65  6281   100
+## inter      14    28   26      34    32  1958
+```
 
+```r
+#kable(
+#,caption="Comparison matrix between documents for the 1 % sample")
+get_comp_matrix(dic2)
+```
 
+```
+##         union blogs news twitter total inter
+## union    9395   100  100     100   100   100
+## blogs      69  6394   67      77    80   100
+## news       72    69 6678      74    82   100
+## twitter    50    57   52    4692    63   100
+## total      72    84   82      90  6704   100
+## inter      33    49   47      66    46  3075
+```
 
-Table: Comparison matrix between documents for the 1 % sample
+```r
+#kable(
+#,caption="Comparison matrix between documents for the 10 % sample")
+get_comp_matrix(dic1)
+```
 
-           union   blogs   news   twitter   total   inter
---------  ------  ------  -----  --------  ------  ------
-union       9395     100    100       100     100     100
-blogs         69    6394     67        77      80     100
-news          72      69   6678        74      82     100
-twitter       50      57     52      4692      63     100
-total         72      84     82        90    6704     100
-inter         33      49     47        66      46    3075
-
-
-
-Table: Comparison matrix between documents for the 10 % sample
-
-           union   blogs   news   twitter   total   inter
---------  ------  ------  -----  --------  ------  ------
-union       9327     100    100       100     100     100
-blogs         71    6619     71        84      83     100
-news          80      79   7434        81      86     100
-twitter       49      58     50      4524      60     100
-total         77      89     83        95    7142     100
-inter         37      52     47        76      48    3425
+```
+##         union blogs news twitter total inter
+## union    9327   100  100     100   100   100
+## blogs      71  6619   71      84    83   100
+## news       80    79 7434      81    86   100
+## twitter    49    58   50    4524    60   100
+## total      77    89   83      95  7142   100
+## inter      37    52   47      76    48  3425
+```
 
 These table are interesting as they highlight the interplay between documents as we build dictionaries. As we compare he values from the 0.1 % to the large  2, we find that even though the dictionary made of sum of all documents appear fairly converged, the most conservative dictionaries (made of the union) and most selective (made of the intersection) dictionaries are not. Interestingly the number of words in the most conservative dictionary decrease as we increase the sample size with the most selective increases.  
 
@@ -399,28 +442,48 @@ dico <- data.frame(
 row.names(dico) <- wds
 ```
 
-Table: Comparison matrix between the different samples. Each dictionary is build by adding up each document (entry `total` in the previous tables.
+```r
+#kable(
+#,caption="Comparison matrix between the different samples.
+# Each dictionary is build by adding up each document (entry `total` in the previous tables.")
+get_comp_matrix(dico)
+```
 
-         union   0.1 %    1 %    10%   inter
-------  ------  ------  -----  -----  ------
-union     8878     100    100    100     100
-0.1 %       71    6281     71     69     100
-1 %         76      75   6704     88     100
-10%         81      79     93   7142     100
-inter       52      73     69     65    4581
+```
+##       union 0.1 %  1 %  10% inter
+## union  8878   100  100  100   100
+## 0.1 %    71  6281   71   69   100
+## 1 %      76    75 6704   88   100
+## 10%      81    79   93 7142   100
+## inter    52    73   69   65  4581
+```
  
 Even though the size of the dictionaries are similar, in term of content the variation seems to be the smallest between the 1 % and 10 % (about 90 % agreement). We find 70  to 75% correspondence between the 0.1 % dictionary and any of the other two. The variation is still large enough that, while combining dictionaries of these three samples, the most conservative approach give close to 9000 words and the most selective 4600. 
 Since we suspect that the 0.1 % sample is not large enough to obtain a good approximation of a converged dictionary we proceed with this exercise focusing on the larger samples. 
 
 
-Table: Same as before, focussing only on the two larger sample. Some convergence may be reached once we use 1 % of the complete data set.
+```r
+# build a new one containing all words
+wds  <- unique(c(wd1,wd2))
+dico <- data.frame(
+    "1 %"  = wds %in% wd2,
+    "10%"  = wds %in% wd1,
+    check.names =FALSE
+)
+row.names(dico) <- wds
+#kable(
+#,caption="Same as before, focussing only on the two larger sample.
+# Some convergence may be reached once we use 1 % of the complete data set.")
+get_comp_matrix(dico,comb=seq(1,2))
+```
 
-         union    1 %    10%   inter
-------  ------  -----  -----  ------
-union     7622    100    100     100
-1 %         88   6704     88     100
-10%         94     93   7142     100
-inter       82     93     88    6224
+```
+##       union  1 %  10% inter
+## union  7622  100  100   100
+## 1 %      88 6704   88   100
+## 10%      94   93 7142   100
+## inter    82   93   88  6224
+```
 
 We read from that matrix, a 10 % deviation between dictionaries, leading to a variation between the most conservative and most selective method to be 20 %. 
 
@@ -444,13 +507,19 @@ val_test <- data.frame(
     check.names = FALSE)
 ```
 
-Table: We display the measure of percentile of text represented using a dictionary build from the largest two samples. The target percentile is 90 %.
+```r
+#kable(
+#,caption="We display the measure of percentile of text represented using a dictionary built
+# from the largest two samples. The target percentile is 90 %.")
+val_test
+```
 
-           0.01 %   0.1 %   1 %   10 %
---------  -------  ------  ----  -----
-blogs          90      89    89     89
-news           87      87    88     87
-twitter        91      90    91     91
+```
+##         0.01 % 0.1 % 1 % 10 %
+## blogs       90    89  89   89
+## news        87    87  88   87
+## twitter     91    90  91   91
+```
 
 Even though we use the most conservative estimate combining dictionaries of the largest 2 samples, we find that it represent a percentile pretty close to the target of 90 % for any of the document we used. The type of document most badly sampled is the news at about 87 %.
 
@@ -499,64 +568,99 @@ colSums(tdm_bg)
 We sum the frequencies across all document to display the most frequent bi-grams. We find that the most occurring bi-gram are made of the most frequent 1-gram or stop words. Some of the bi-gram contains short forms that we separated during text processing.
 
 
-Table: Most frequent bi-gram found in the 0.1 % sample in the different documents.
+```r
+# Build a Term frequency vector and sort it 
+bifreq <- rowSums(as.matrix(tdm_bg))
+bifreq <- sort(bifreq,decreasing=TRUE)
+# Look at the most frequent bigrams
+bihead <- head(names(bifreq),10)
+#kable(
+#,caption="Most frequent bi-gram found in the 0.1 % sample in the different documents.")
+tdm_bg[bihead,]
+```
 
-           blogs   news   twitter
---------  ------  -----  --------
-of the       180    201        57
-in the       127    187        69
-it 's         74     72        81
-to the        88     85        47
-on the        81     74        55
-for the       57     63        75
-to be         76     48        45
-at the        46     64        44
-in a          46     45        30
-and the       46     46        18
+```
+##          Docs
+## Terms     blogs news twitter
+##   of the    180  201      57
+##   in the    127  187      69
+##   it 's      74   72      81
+##   to the     88   85      47
+##   on the     81   74      55
+##   for the    57   63      75
+##   to be      76   48      45
+##   at the     46   64      44
+##   in a       46   45      30
+##   and the    46   46      18
+```
 
 We can now ignore the document type and combine all the document together and obtain a vector instead of a matrix. 
 Then we can split the terms, and create a data frame whose columns are the first word, the second word and the frequency (here number of occurrences).
 Additionally we can test whether each word is in the dictionary. We show in the next table the most and least frequent bi-grams in this data frame: 
 
-Table: Most frequent bi-gram found in the 0.1 % sample, we check that each word is part of the dictionary
+```r
+#Build the data,frame
+sptword <- strsplit(names(bifreq)," ")
+df_bifreq <- data.frame(
+    word1 = sapply(sptword,function(x){x[1]}),
+    word2 = sapply(sptword,function(x){x[2]}),
+    freq  = bifreq
+)
+rm(sptword)
+row.names(df_bifreq) <-names(bifreq)
+df_bifreq["indic1"] <- df_bifreq$word1 %in% wd0
+df_bifreq["indic2"] <- df_bifreq$word2 %in% wd0
+#kable(
+#,caption="Most frequent bi-gram found in the 0.1 % sample, we check that each word is part of the dictionary")
+head(df_bifreq)
+```
 
-          word1   word2    freq  indic1   indic2 
---------  ------  ------  -----  -------  -------
-of the    of      the       438  TRUE     TRUE   
-in the    in      the       383  TRUE     TRUE   
-it 's     it      's        227  TRUE     TRUE   
-to the    to      the       220  TRUE     TRUE   
-on the    on      the       210  TRUE     TRUE   
-for the   for     the       195  TRUE     TRUE   
+```
+##         word1 word2 freq indic1 indic2
+## of the     of   the  438   TRUE   TRUE
+## in the     in   the  383   TRUE   TRUE
+## it 's      it    's  227   TRUE   TRUE
+## to the     to   the  220   TRUE   TRUE
+## on the     on   the  210   TRUE   TRUE
+## for the   for   the  195   TRUE   TRUE
+```
 
+```r
+#kable(
+#,caption="Same as the previous table, for the least frequent terms.")
+tail(df_bifreq)
+```
 
-
-Table: Same as the previous table, for the least frequent terms.
-
-                  word1     word2        freq  indic1   indic2 
-----------------  --------  ----------  -----  -------  -------
-zone will         zone      will            1  TRUE     TRUE   
-zones provencal   zones     provencal       1  FALSE    FALSE  
-zoos were         zoos      were            1  FALSE    TRUE   
-zpass accounts    zpass     accounts        1  FALSE    TRUE   
-zumwalt west      zumwalt   west            1  FALSE    TRUE   
-zyvox mrsa        zyvox     mrsa            1  FALSE    FALSE  
+```
+##                   word1     word2 freq indic1 indic2
+## zone will          zone      will    1   TRUE   TRUE
+## zones provencal   zones provencal    1  FALSE  FALSE
+## zoos were          zoos      were    1  FALSE   TRUE
+## zpass accounts    zpass  accounts    1  FALSE   TRUE
+## zumwalt west    zumwalt      west    1  FALSE   TRUE
+## zyvox mrsa        zyvox      mrsa    1  FALSE  FALSE
+```
 
 As a first insight of a possible model, we can look at all the bi-gram starting by the word *"zone"*. In a 1-gram prediction model, we could use the second word in the most frequent bi-gram as our prediction. 
 
 
-Table: Bi-gram stating with word 'zone'
+```r
+#kable(
+#,caption="Bi-gram stating with word 'zone'")
+df_bifreq[df_bifreq$word1=="zone",]
+```
 
-                 word1   word2        freq  indic1   indic2 
----------------  ------  ----------  -----  -------  -------
-zone can         zone    can             1  TRUE     TRUE   
-zone g           zone    g               1  TRUE     TRUE   
-zone immediate   zone    immediate       1  TRUE     TRUE   
-zone of          zone    of              1  TRUE     TRUE   
-zone president   zone    president       1  TRUE     TRUE   
-zone td          zone    td              1  TRUE     FALSE  
-zone to          zone    to              1  TRUE     TRUE   
-zone will        zone    will            1  TRUE     TRUE   
+```
+##                word1     word2 freq indic1 indic2
+## zone can        zone       can    1   TRUE   TRUE
+## zone g          zone         g    1   TRUE   TRUE
+## zone immediate  zone immediate    1   TRUE   TRUE
+## zone of         zone        of    1   TRUE   TRUE
+## zone president  zone president    1   TRUE   TRUE
+## zone td         zone        td    1   TRUE  FALSE
+## zone to         zone        to    1   TRUE   TRUE
+## zone will       zone      will    1   TRUE   TRUE
+```
 
 And we see here that the frequencies are all similar, alphabetical order may not be a good choice in that case.  We can expect that using larger sample would break this ties. Alternatively the bi-gram model, using trig-grams frequencies could work, provided the word preceding these bi-grams differs.
 
@@ -578,36 +682,74 @@ We can apply the exploratory analysis we ran on bi-grams on tri-grams. Starting 
 
 We can then sum up the contributions of each document and explore the most frequent trig-grams
 
-Table: Most frequent tri-grams in the documents of the 0.1 % sample.
+```r
+# Build a Term frequency vector and sort it 
+trifreq <- rowSums(as.matrix(tdm_tg))
+trifreq <- sort(trifreq,decreasing=TRUE)
+# Look at the most frequent bigrams
+trihead <- head(names(trifreq),10)
+#kable(
+#,caption="Most frequent tri-grams in the documents of the 0.1 % sample.")
+tdm_tg[trihead,]
+```
 
-                      blogs   news   twitter
--------------------  ------  -----  --------
-one of the               12     14        10
-it 's a                  11     11         4
-thanks for the            0      0        26
-a lot of                  8     12         4
-looking forward to        2      1        17
-as well as                9      8         1
-it was a                  9      5         4
-going to be               5      7         5
-i 've been                9      2         5
-there 's a                2     10         4
+```
+##                     Docs
+## Terms                blogs news twitter
+##   one of the            12   14      10
+##   it 's a               11   11       4
+##   thanks for the         0    0      26
+##   a lot of               8   12       4
+##   looking forward to     2    1      17
+##   as well as             9    8       1
+##   it was a               9    5       4
+##   going to be            5    7       5
+##   i 've been             9    2       5
+##   there 's a             2   10       4
+```
 
 Once again we create a matrix separation our trig-grams into 3 column, and we go back to the prediction test we ran on the word *"zone"*.
 
 
-Table: Tri-gram containing the word 'zone' in second position
+```r
+#Build the data frame
+sptword <- strsplit(names(trifreq)," ")
+df_trifreq <- data.frame(
+    word1 = sapply(sptword,function(x){x[1]}),
+    word2 = sapply(sptword,function(x){x[2]}),
+    word3 = sapply(sptword,function(x){x[3]}),
+    freq  = trifreq
+)
+rm(sptword)
+row.names(df_trifreq) <-names(trifreq)
+df_trifreq["indic1"] <- df_trifreq$word1 %in% wd0
+df_trifreq["indic2"] <- df_trifreq$word2 %in% wd0
+df_trifreq["indic3"] <- df_trifreq$word3 %in% wd0
+#kable(
+#,caption="Tri-gram containing the word 'zone' in second position")
+df_trifreq[df_trifreq$word2=="zone",]
+```
 
-                         word1        word2   word3        freq  indic1   indic2   indic3 
------------------------  -----------  ------  ----------  -----  -------  -------  -------
-comfort zone immediate   comfort      zone    immediate       1  TRUE     TRUE     TRUE   
-discomfort zone can      discomfort   zone    can             1  FALSE    TRUE     TRUE   
-euro zone to             euro         zone    to              1  TRUE     TRUE     TRUE   
-flood zone of            flood        zone    of              1  TRUE     TRUE     TRUE   
-memory zone will         memory       zone    will            1  TRUE     TRUE     TRUE   
-red zone td              red          zone    td              1  TRUE     TRUE     FALSE  
-school zone g            school       zone    g               1  TRUE     TRUE     TRUE   
-war zone president       war          zone    president       1  TRUE     TRUE     TRUE   
+```
+##                             word1 word2     word3 freq indic1 indic2
+## comfort zone immediate    comfort  zone immediate    1   TRUE   TRUE
+## discomfort zone can    discomfort  zone       can    1  FALSE   TRUE
+## euro zone to                 euro  zone        to    1   TRUE   TRUE
+## flood zone of               flood  zone        of    1   TRUE   TRUE
+## memory zone will           memory  zone      will    1   TRUE   TRUE
+## red zone td                   red  zone        td    1   TRUE   TRUE
+## school zone g              school  zone         g    1   TRUE   TRUE
+## war zone president            war  zone president    1   TRUE   TRUE
+##                        indic3
+## comfort zone immediate   TRUE
+## discomfort zone can      TRUE
+## euro zone to             TRUE
+## flood zone of            TRUE
+## memory zone will         TRUE
+## red zone td             FALSE
+## school zone g            TRUE
+## war zone president       TRUE
+```
 
 We see that, using 2 words can remove some degeneracy in the prediction. But in many case the first word may be a stop word like *"the"* and provide no useful information.
 
@@ -703,13 +845,19 @@ val_test <- data.frame(
     check.names=FALSE)
 ```
 
-Table: Validation test of a dictionary we use for this model, it was generated using 90 % of the combined (unweighted) documents of the 1 % sample.
+```r
+#kable(
+#,caption="Validation test of a dictionary we use for this model, it was generated using 90 %
+# of the combined (unweighted) documents of the 1 % sample.")
+val_test
+```
 
-           input dictionary   prediction dictionary
---------  -----------------  ----------------------
-blogs                    89                      89
-news                     88                      88
-twitter                  91                      90
+```
+##         input dictionary prediction dictionary
+## blogs                 89                    89
+## news                  88                    88
+## twitter               91                    90
+```
 
 This dictionary is less exclusive that the one we tested, the improvement is below the 1% level on this sample. After profanity filtering we lost 1 % completeness on the twitter document. 
 
@@ -843,15 +991,21 @@ word_prediction <- rbind(word_prediction,new_prediction)
 rm(new_prediction,df_trifreq1)
 ```
 
-Table: Model prediction for the default 0-gram model, and first 4 predictions for the first word based 1-gram model.
+```r
+#kable(
+#,caption="Model prediction for the default 0-gram model, 
+# and first 4 predictions for the first word based 1-gram model.")
+head(word_prediction,5)
+```
 
-word1   word2   prediction 
-------  ------  -----------
-*       *       and        
-'d      *       the        
-'ll     *       it         
-'re     *       and        
-'s      *       and        
+```
+##   word1 word2 prediction
+## 1     *     *        and
+## 2    'd     *        the
+## 3   'll     *         it
+## 4   're     *        and
+## 5    's     *        and
+```
 
 ```r
 df_trifreq2 <- split(df_trifreq2,df_trifreq2$word2)
@@ -863,15 +1017,20 @@ word_prediction <- rbind(word_prediction,new_prediction)
 rm(new_prediction,df_trifreq2)
 ```
 
-Table: Last 5 predictions o of the second word based 1-gram model
+```r
+#kable(
+#,row.names = FALSE,caption="Last 5 predictions o of the second word based 1-gram model")
+tail(word_prediction,5)
+```
 
-word1   word2       prediction 
-------  ----------  -----------
-*       zero        per        
-*       zimmerman   director   
-*       zombie      then       
-*       zone        in         
-*       zoo         in         
+```
+##       word1     word2 prediction
+## 11275     *      zero        per
+## 11276     * zimmerman   director
+## 11277     *    zombie       then
+## 11278     *      zone         in
+## 11279     *       zoo         in
+```
 
 And finally the 2 word prediction
 
@@ -889,15 +1048,21 @@ for(word1 in names(df_trifreq3)){
     rm(df_bifreq,new_prediction)
 ```
 
-Table: Last 5 predictions o of the 2-gram model
+```r
+rm(df_trifreq3)
+#kable(
+#,row.names = FALSE,caption="Last 5 predictions o of the 2-gram model")
+tail(word_prediction,5)
+```
 
-word1   word2   prediction 
-------  ------  -----------
-zoo     shown   no         
-zoo     the     high       
-zoo     two     golf       
-zoo     was     an         
-zoo     we      know       
+```
+##        word1 word2 prediction
+## 284898   zoo shown         no
+## 284899   zoo   the       high
+## 284900   zoo   two       golf
+## 284901   zoo   was         an
+## 284902   zoo    we       know
+```
 
 This model required 2 mn to be computed on the 0.1 % sample and 16 mn on the 1 % sample, using R version 3.3.1 on a Mac Book Pro 2.9 GHz Intel Core i7. The resulting data frame has a size of 4.4 Mb. 
 
