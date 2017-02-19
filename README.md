@@ -23,14 +23,10 @@ At this date, I have no clue how to proceed
 	*  `NLP_MilesStone2_dtweed_files/figure_html` directory containing the figures
 
 ### R scripts
-	
-1. R scripts relevant to the first report (now outdated)
-	* `NLP_capstone.R` script file containing function shown in the report
-	* `build_word_prediction_model.R` script containing a function take a directory of text documents for training and returns a prediction data frame as a function of the first and second word. 
-1.  R script relevant to the second report
-	* `processing.R` Contains the relevant function necessary to process the data
-	* `build_dictionaries.R` contains the necessary function to create a dictionary of words
-	* `stat_sampling.R` contains the functions necessary to reproduce the data frame used  for creating the different figures of the second report. 
+
+* `processing.R` Contains the relevant function necessary to process the data
+* `build_dictionaries.R` contains the necessary function to create a dictionary of words
+* `stat_sampling.R` contains the functions necessary to reproduce the data frame used  for creating the different figures of the second report. 
 
 ### Data file
 
